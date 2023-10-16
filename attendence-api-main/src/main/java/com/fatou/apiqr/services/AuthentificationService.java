@@ -13,9 +13,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
 
 @Service
 @Slf4j
@@ -64,5 +63,9 @@ public class AuthentificationService {
         userrepository.save(user);
         return new ResponseEntity<>("Inscription effectuée avec succès", HttpStatus.OK);
 
+    }
+    public List<UserModel>  getAllUsers() {
+        //List<UserModel> userModels = new ArrayList<UserModel>();
+        return userrepository.findAll();
     }
 }

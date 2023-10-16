@@ -29,11 +29,11 @@ public class PresenceController {
     }
 
     @GetMapping("/genererListe")
-    public ResponseEntity<?> genererListePresence(@RequestParam String username) {
-        return ResponseEntity.ok("Liste de présence générée avec succès");
+    public List<Presence> getAllPresence() {
+        return presenceService.getAllPresence();
     }
 
-    @GetMapping("/getlistepresence")
+    @GetMapping( "/getlistepresence")
     public List<Presence> getAllPresence(@RequestParam String username) {
         return presenceService.findAllByUsername(username);
     }

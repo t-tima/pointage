@@ -24,7 +24,7 @@ import java.util.List;
 @Slf4j
 public class PresenceService {
 
-    private static final int QR_EXPIRATION_TIME = 5 * 60 * 1000;
+    private static final int QR_EXPIRATION_TIME = 30 * 60 * 1000;
     @Autowired
     QrRepository qrRepository;
     @Autowired
@@ -67,10 +67,10 @@ public class PresenceService {
             Presence presencetoday=presenceRepository.findFirstByUsernameAndCreateAt(presenceDto.getUsername(), getDateWithoutTimeUsingFormat());
             if (presencetoday!=null){
                 log.info("UPDATE Presence: {}", presencetoday.getUsername());
-                LocalTime heureEntrer = LocalTime.now();
-                presencetoday.setHeureEntrer(heureEntrer);
+                LocalTime heureSortie= LocalTime.now();
+                presencetoday.setHeureSortie(heureSortie);
                 presencetoday.setUpdatedDate(new Date());
-                double diff = heureEntrer.until(presencetoday.getHeureSortie(), ChronoUnit.HOURS);
+                double diff = presencetoday.getHeureEntrer().until(presencetoday.getHeureSortie(), ChronoUnit.HOURS);
                 presencetoday.setCumul(diff);
                 presenceRepository.saveAndFlush(presencetoday);
             }
@@ -80,7 +80,7 @@ public class PresenceService {
             presence.setIdqrcode(presenceDto.getIdqrcode());
             presence.setUsername(presenceDto.getUsername());
             presence.setCreateAt(this.getDateWithoutTimeUsingFormat());
-            presence.setHeureSortie(LocalTime.now());
+            presence.setHeureEntrer(LocalTime.now());
 
             presenceRepository.saveAndFlush(presence);
             }
@@ -92,6 +92,9 @@ public class PresenceService {
             return new ResponseEntity("Echec ajout de presence", HttpStatus.valueOf(500));
         }
 
+    }
+    public List<Presence> getAllPresence() {
+        return presenceRepository.findAll();
     }
 
     public List<Presence> findAllByUsername(String username) {

@@ -27,7 +27,6 @@ public class UserModel {
     private String prenom;
     private String email;
     private String telephone;
-    private Integer salaire;
     private Date dateNaissance;
     @Column(length = 100)
     private String lieuNaissance;
