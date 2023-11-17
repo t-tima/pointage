@@ -28,6 +28,18 @@ public class UserController {
         return authentificationService.register(user);
     }
 
+    @PostMapping("edit")
+    public ResponseEntity modify(@RequestParam String username,@RequestParam String newPassword,@RequestParam String code){
+        System.out.println(username + newPassword);
+        return authentificationService.modify(username,newPassword,code);
+    }
+
+    @PostMapping("reset")
+    public ResponseEntity reset(@RequestParam String username){
+        System.out.println(username);
+        return authentificationService.resetPassword(username);
+    }
+
     @GetMapping("userliste")
     public List<UserModel> getAllUsers() {
         return authentificationService.getAllUsers();

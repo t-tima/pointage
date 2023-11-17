@@ -32,6 +32,8 @@ public class UserModel {
     private String lieuNaissance;
     private Date createAt;
     private String role;
+private boolean changer= false;
+    private int code;
 
 
 }

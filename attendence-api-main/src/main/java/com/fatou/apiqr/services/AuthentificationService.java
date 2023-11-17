@@ -23,11 +23,17 @@ public class AuthentificationService {
     private final UserRepository userrepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailServiceImpl emailService;
+    private final String password = "votre_mot_de_passe";
+    private String random;
 
-    public AuthentificationService(UserRepository userrepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+
+
+    public AuthentificationService(UserRepository userrepository, PasswordEncoder passwordEncoder, JwtService jwtService, EmailServiceImpl emailService) {
         this.userrepository = userrepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.emailService = emailService;
     }
 
 
@@ -40,6 +46,9 @@ public class AuthentificationService {
         if(!passwordEncoder.matches(login.getPassword(), user.getPassword())){
             return  new ResponseEntity<>("Echec authentification. Login ou mot de passe incorrect", HttpStatusCode.valueOf(400));
         }
+
+
+
         //TODO Implement JWT Token ACCESS
         Map<String, Object> response = new HashMap<>();
         String token = jwtService.createToken(user);
@@ -55,11 +64,14 @@ public class AuthentificationService {
         if (existingUser != null)
             return  new ResponseEntity<>("Le username existe déjà !", HttpStatusCode.valueOf(400));
 
+        emailService.sendPasswordToUser(user.getEmail(),"Votre mot de passe",user.getPassword());
+
         String encodedPass = passwordEncoder.encode(user.getPassword());
         log.info("ENCODED :{}", encodedPass);
         user.setPassword(encodedPass);
         user.setCreateAt(new Date());
-        user.setRole("USER");
+        if("".equals(user.getRole()) ||  user.getRole() == null)
+            user.setRole("USER");
         userrepository.save(user);
         return new ResponseEntity<>("Inscription effectuée avec succès", HttpStatus.OK);
 
@@ -68,4 +80,35 @@ public class AuthentificationService {
         //List<UserModel> userModels = new ArrayList<UserModel>();
         return userrepository.findAll();
     }
+
+    public ResponseEntity resetPassword(String email){
+        UserModel existingUser = userrepository.findByEmail(email);
+        if (existingUser == null)
+            return  new ResponseEntity<>("L'email n'existe pas !", HttpStatusCode.valueOf(400));
+
+       this.random = emailService.geneRandomPassword(email,"Change password");
+
+        return new ResponseEntity<>( null, HttpStatusCode.valueOf(200));
+
+    }
+
+    public ResponseEntity modify(String username, String newpassword,String random){
+        UserModel existingUser = userrepository.findByUsername(username);
+        if (existingUser == null)
+            return  new ResponseEntity<>("L'utilisateur n'existe pas !", HttpStatusCode.valueOf(400));
+
+        if (!Objects.equals(String.valueOf(existingUser.getCode()), random))
+            return  new ResponseEntity<>("Code incorrect !", HttpStatusCode.valueOf(400));
+
+
+        String encodedPass = passwordEncoder.encode(newpassword);
+        log.info("ENCODED :{}", encodedPass);
+        existingUser.setPassword(encodedPass);
+        userrepository.save(existingUser);
+
+
+        return new ResponseEntity<>( null, HttpStatusCode.valueOf(200));
+
+    }
+
 }
